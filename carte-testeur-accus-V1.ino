@@ -90,9 +90,9 @@ void mesureTension() {
 void mesureCapacite(float seuil) {
   float u;
   uint16_t q;
-  unsigned long initTime;
+  unsigned long initTimeSec, dureeMesureSec;
 
-  initTime = millis();
+  initTimeSec = millis()/1000;
 
   // La mesure de la capacite de l'accu se fait à 
   // fort courant de decharge COURANT3 
@@ -109,14 +109,15 @@ void mesureCapacite(float seuil) {
     u = PDIV0*analogRead(A0)*VREF/1023.0;
     oled.println("");
     oled.println("U = " + String(u) + " V");  
-    q = COURANT3*(millis()-initTime)/3600000.0;
+    dureeMesureSec = millis()/1000-initTimeSec;
+    q = COURANT3*dureeMesureSec/3600;
     oled.println("Q = "+String(q)+" mAh");  
-    Serial.println(q);
     delay(2000);
   }
 
   oled.println("mesure terminee");
   oled.println("ok -> fin");
+  
   bouton_ok_appuye = false;
   digitalWrite(3, LOW);
   digitalWrite(4, LOW);
@@ -266,8 +267,8 @@ void setup() {
   oled.println("l'electronique");
   oled.println("avec un Arduino");
   oled.println("");
-  delay(3000);
-  
+  oled.println("ok -> suivant");  
+    
   // Positionne la référence de tension 
   // sur la référence interne à 1,1 V
   analogReference(INTERNAL);
@@ -289,6 +290,10 @@ void setup() {
   digitalWrite(3, LOW);
   digitalWrite(4, LOW);
 
+  // Attente d'appui sur le bouton ok
+  while (bouton_ok_appuye == false) {};
+  bouton_ok_appuye = false;
+  
   afficheMenuPrincipal();
 
 }
